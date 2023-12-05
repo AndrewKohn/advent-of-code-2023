@@ -21,6 +21,7 @@ The main goal is to complete each challenge the day it is released. The secondar
     alt="javascript icon"
     title="JavaScript"
   />
+
 - <a href="https://github.com/AndrewKohn/advent-of-code-2023/blob/master/02/DayTwoPartOne.java">Day 02</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;Java&nbsp;&nbsp;
   <img
     height="18px"
@@ -35,4 +36,12 @@ The main goal is to complete each challenge the day it is released. The secondar
     src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/rust/rust-plain.svg"
     alt="rust icon"
     title="Rust"
+  />
+
+- <a href="https://github.com/AndrewKohn/advent-of-code-2023/blob/master/04/DayFourPartOne.java">Day 04</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;Java&nbsp;&nbsp;
+  <img
+    height="18px"
+    src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg"
+    alt="java icon"
+    title="Java"
   />
