@@ -28,3 +28,7 @@ dist-ssr
 .idea
 out/*
 *.iml
+
+# rust
+target
+*.lock
