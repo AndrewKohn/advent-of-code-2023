@@ -6,10 +6,6 @@
   <h3>🌟&nbsp;&nbsp;&nbsp;2023&nbsp;&nbsp;&nbsp;🌟</h3>
 </div>
 
-## Goals
-
-The main goal is to complete each challenge the day it is released. The secondary goal is to try to use a different languages than the previous day in order to learn/brush up on skills.
-
 #
 
 ## Table of Contents
