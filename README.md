@@ -6,8 +6,6 @@
   <h3>🌟&nbsp;&nbsp;&nbsp;2023&nbsp;&nbsp;&nbsp;🌟</h3>
 </div>
 
-#
-
 ## Table of Contents
 
 - <a href="https://github.com/AndrewKohn/advent-of-code-2023/blob/master/01/day1-part1.js">Day 01</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;JavaScript&nbsp;&nbsp;
@@ -40,4 +38,12 @@
     src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg"
     alt="java icon"
     title="Java"
+  />
+
+- <a href="https://github.com/AndrewKohn/advent-of-code-2023/tree/master/05">Day 05</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;Rust&nbsp;&nbsp;
+  <img
+    height="18px"
+    src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/rust/rust-plain.svg"
+    alt="rust icon"
+    title="Rust"
   />
