@@ -47,3 +47,12 @@
     alt="javascript icon"
     title="JavaScript"
   />
+
+
+- <a href="https://github.com/AndrewKohn/advent-of-code-2023/blob/master/06/DaySixPartOne.java">Day 06</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;Java&nbsp;&nbsp;
+  <img
+    height="18px"
+    src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg"
+    alt="java icon"
+    title="Java"
+  />
