@@ -40,7 +40,7 @@
     title="Java"
   />
 
-- <a href="https://github.com/AndrewKohn/advent-of-code-2023/blob/master/05/day5-part1.js">Day 05</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;JavaScript&nbsp;&nbsp;
+- <a href="https://github.com/AndrewKohn/advent-of-code-2023/blob/master/05/day5_part1.js">Day 05</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;JavaScript&nbsp;&nbsp;
   <img
     height="18px"
     src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"
