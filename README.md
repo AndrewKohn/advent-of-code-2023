@@ -63,3 +63,11 @@
       alt="javascript icon"
       title="JavaScript"
     />
+
+-   <a href="https://github.com/AndrewKohn/advent-of-code-2023/blob/master/08/d8p1.js">Day 08</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;JavaScript&nbsp;&nbsp;
+    <img
+      height="18px"
+      src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"
+      alt="javascript icon"
+      title="JavaScript"
+    />
