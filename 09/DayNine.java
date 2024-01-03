@@ -3,7 +3,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
-public class DayNinePartOne {
+public class DayNine {
     public static void main (String[] args) {
         long startTime = System.currentTimeMillis();
 //        String reportValues = "09/DayNineSampleData.txt";
