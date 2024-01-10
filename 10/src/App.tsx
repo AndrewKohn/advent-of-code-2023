@@ -12,10 +12,10 @@ enum TileSpace {
 }
 
 enum Direction {
-    North,
-    East,
-    South,
-    West,
+    NORTH,
+    EAST,
+    SOUTH,
+    WEST,
 }
 
 // const Directions = [
@@ -44,43 +44,105 @@ const getStart = (input: string[]) => {
 const getPath = (input: string[], start: Position) => {
     const { x, y } = start;
 
-    console.log(x, y);
-    console.log(input);
+    if (
+        input[y + 1][x] === TileSpace.NorthSouth ||
+        input[y + 1][x] === TileSpace.NorthEast ||
+        input[y + 1][x] === TileSpace.NorthWest
+    )
+        return { dir: Direction.SOUTH, y: y + 1, x };
 
-    // if(input[y +1][x] === '|' || input[y])
+    if (
+        input[y - 1][x] === TileSpace.NorthSouth ||
+        input[y - 1][x] === TileSpace.SouthEast ||
+        input[y - 1][x] === TileSpace.SouthWest
+    )
+        return { dir: Direction.NORTH, y: y - 1, x };
+
+    return { dir: Direction.EAST, y, x: x + 1 };
 };
 
 function App() {
     const [input, setInput] = useState<string[]>([]);
-    // const [path, setPath] = useState<number[][]>([]);
-    useEffect(() => {
-        fetch('../diagramSample.txt')
-            .then(res => res.text())
-            .then(data => setInput(data.split('\n')));
-    }, []);
-
     // useEffect(() => {
-    //     fetch('../diagram.txt')
+    //     fetch('../diagramSample.txt')
     //         .then(res => res.text())
     //         .then(data => setInput(data.split('\n')));
     // }, []);
 
     useEffect(() => {
+        fetch('../diagram.txt')
+            .then(res => res.text())
+            .then(data => setInput(data.split('\n')));
+    }, []);
+
+    useEffect(() => {
         if (input) {
             const start = getStart(input);
-            if (start) getPath(input, start);
+            if (start) {
+                let { dir, y, x } = getPath(input, start);
+                const path = [start, { x, y }];
+                let steps = 1; // init w/ one step since getPath was called
+
+                while (x !== start.x || y !== start.y) {
+                    let candidateX = 0;
+                    let candidateY = 0;
+
+                    switch (`${input[y][x]} : ${dir}`) {
+                        case `${TileSpace.NorthSouth} : ${Direction.NORTH}`:
+                            candidateY = -1;
+                            break;
+                        case `${TileSpace.NorthSouth} : ${Direction.SOUTH}`:
+                            candidateY = 1;
+                            break;
+                        case `${TileSpace.EastWest} : ${Direction.EAST}`:
+                            candidateX = 1;
+                            break;
+                        case `${TileSpace.EastWest} : ${Direction.WEST}`:
+                            candidateX = -1;
+                            break;
+                        case `${TileSpace.NorthEast} : ${Direction.SOUTH}`:
+                            candidateX = 1;
+                            break;
+                        case `${TileSpace.NorthEast} : ${Direction.WEST}`:
+                            candidateY = -1;
+                            break;
+                        case `${TileSpace.NorthWest} : ${Direction.SOUTH}`:
+                            candidateX = -1;
+                            break;
+                        case `${TileSpace.NorthWest} : ${Direction.EAST}`:
+                            candidateY = -1;
+                            break;
+                        case `${TileSpace.SouthWest} : ${Direction.NORTH}`:
+                            candidateX = -1;
+                            break;
+                        case `${TileSpace.SouthWest} : ${Direction.EAST}`:
+                            candidateY = 1;
+                            break;
+                        case `${TileSpace.SouthEast} : ${Direction.NORTH}`:
+                            candidateX = 1;
+                            break;
+                        case `${TileSpace.SouthEast} : ${Direction.WEST}`:
+                            candidateY = 1;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (candidateY === -1) dir = Direction.NORTH;
+                    if (candidateX === 1) dir = Direction.EAST;
+                    if (candidateY === 1) dir = Direction.SOUTH;
+                    if (candidateX === -1) dir = Direction.WEST;
+
+                    x += candidateX;
+                    y += candidateY;
+                    steps++;
+                    path.push({ x, y });
+                }
+                console.log(path);
+                console.log(steps / 2);
+            }
         }
     }, [input]);
-
-    // useEffect(() => {
-    //     const start = getStart(input);
-
-    //     if (start) setPath([start]);
-    // }, [input]);
-
-    // useEffect(() => {
-    //     if (path) path.forEach((p: number[], i: number) => console.log(i, p));
-    // }, [path]);
 
     return (
         <main style={mainStyles}>
@@ -145,8 +207,8 @@ const mainStyles: React.CSSProperties = {
     display: 'flex',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    // NOTE: Error w/ main element w/o this 'const' declaration...
-    flexDirection: 'column' as const,
+    flexDirection: 'column',
+    marginBottom: '18rem',
 };
 
 const lineStyle: React.CSSProperties = {
@@ -154,10 +216,10 @@ const lineStyle: React.CSSProperties = {
 };
 
 const blockStyle: React.CSSProperties = {
-    width: '3rem',
-    height: '3rem',
-    // width: '1.2rem',
-    // height: '1.2rem',
+    // width: '3rem',
+    // height: '3rem',
+    width: '1.2rem',
+    height: '1.2rem',
     boxSizing: 'border-box',
     border: '1px solid rgba(255, 255, 0, 0.5)',
     backgroundColor: 'rgba(255, 0, 0, 0.5)',
@@ -169,8 +231,8 @@ const selectedBlock: React.CSSProperties = {
 };
 
 const tileStyle: React.CSSProperties = {
-    fontSize: '1.2rem',
-    // fontSize: '0.8rem',
+    // fontSize: '1.2rem',
+    fontSize: '0.8rem',
     fontWeight: '700',
     position: 'absolute',
     top: '50%',
