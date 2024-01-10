@@ -1,3 +1,4 @@
+import React, { useRef } from 'react';
 import { useEffect, useState } from 'react';
 
 enum TileSpace {
@@ -17,13 +18,6 @@ enum Direction {
     SOUTH,
     WEST,
 }
-
-// const Directions = [
-//     Direction.North,
-//     Direction.East,
-//     Direction.South,
-//     Direction.West,
-// ];
 
 interface Position {
     x: number;
@@ -63,6 +57,8 @@ const getPath = (input: string[], start: Position) => {
 
 function App() {
     const [input, setInput] = useState<string[]>([]);
+    const [paths, setPaths] = useState<Position[]>([]);
+    const stepsRef = useRef<number>(0);
     // useEffect(() => {
     //     fetch('../diagramSample.txt')
     //         .then(res => res.text())
@@ -136,10 +132,10 @@ function App() {
                     x += candidateX;
                     y += candidateY;
                     steps++;
+                    stepsRef.current = steps;
                     path.push({ x, y });
                 }
-                console.log(path);
-                console.log(steps / 2);
+                if (path.length > 0) setPaths(path);
             }
         }
     }, [input]);
@@ -147,7 +143,11 @@ function App() {
     return (
         <main style={mainStyles}>
             <h1 style={{ marginBottom: '4rem' }}>Day 10</h1>
-            <Tiles input={input} />
+            <p>{`Steps: ${stepsRef.current}`}</p>
+            <p style={{ marginBottom: '4rem' }}>{`p1: ${
+                stepsRef.current / 2
+            }`}</p>
+            <Tiles input={input} paths={paths} />
         </main>
     );
 }
@@ -156,45 +156,54 @@ function App() {
 // Tiles Component
 interface TilesProps {
     input: string[];
+    paths: Position[];
 }
 
-const Tiles = ({ input }: TilesProps) => {
-    const displayTiles = (lineValues: string[]) => {
-        return lineValues.map((tile: string, key: number) => (
-            <Tile char={tile} key={key} />
-        ));
+const Tiles = React.memo(({ input, paths }: TilesProps) => {
+    const displayTiles = (lineValues: string[], y: number) => {
+        return lineValues.map((tile: string, key: number) => {
+            const isSelectedTile: boolean = paths.some(
+                (pos: Position) => pos.x === key && pos.y === y
+            );
+
+            return (
+                <Tile char={tile} isSelectedTile={isSelectedTile} key={key} />
+            );
+        });
     };
 
     const line = Object.values(input).map((tiles: string, key: number) => (
         <div style={lineStyle} key={key}>
-            {displayTiles(tiles.split(''))}
+            {displayTiles(tiles.split(''), key)}
         </div>
     ));
 
     return line ? line : null;
-};
+});
 
 /////////////////////////////////////////////////////////////////
 // Tile Component
 interface TileProps {
     char: string;
+    isSelectedTile: boolean;
 }
 
-const Tile = ({ char }: TileProps) => {
-    const [hover, setHover] = useState<boolean>(false);
-
+const Tile = React.memo(({ char, isSelectedTile }: TileProps) => {
     return (
         <div
-            style={{ ...blockStyle, ...(hover ? selectedBlock : {}) }}
-            onMouseEnter={() => setHover(true)}
-            onMouseLeave={() => setHover(false)}
+            style={{ ...blockStyle, ...(isSelectedTile ? selectedBlock : {}) }}
         >
-            <p style={{ ...tileStyle, ...(hover ? selectedTile : {}) }}>
+            <p
+                style={{
+                    ...tileStyle,
+                    ...(isSelectedTile ? hideTile : {}),
+                }}
+            >
                 {char}
             </p>
         </div>
     );
-};
+});
 
 /////////////////////////////////////////////////////////////////
 // CSS
@@ -216,8 +225,6 @@ const lineStyle: React.CSSProperties = {
 };
 
 const blockStyle: React.CSSProperties = {
-    // width: '3rem',
-    // height: '3rem',
     width: '1.2rem',
     height: '1.2rem',
     boxSizing: 'border-box',
@@ -231,7 +238,6 @@ const selectedBlock: React.CSSProperties = {
 };
 
 const tileStyle: React.CSSProperties = {
-    // fontSize: '1.2rem',
     fontSize: '0.8rem',
     fontWeight: '700',
     position: 'absolute',
@@ -241,9 +247,8 @@ const tileStyle: React.CSSProperties = {
     pointerEvents: 'none',
 };
 
-const selectedTile: React.CSSProperties = {
-    // fontSize: '1rem',
-    fontSize: '2rem',
+const hideTile: React.CSSProperties = {
+    display: 'none',
 };
 
 export default App;
