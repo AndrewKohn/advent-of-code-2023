@@ -56,20 +56,34 @@ const getPath = (input: string[], start: Position) => {
 };
 
 function App() {
+    const [currentFile, setCurrentFile] = useState<string>(
+        '../diagramSample.txt'
+    );
     const [input, setInput] = useState<string[]>([]);
     const [paths, setPaths] = useState<Position[]>([]);
     const stepsRef = useRef<number>(0);
-    // useEffect(() => {
-    //     fetch('../diagramSample.txt')
-    //         .then(res => res.text())
-    //         .then(data => setInput(data.split('\n')));
-    // }, []);
 
+    // init
     useEffect(() => {
-        fetch('../diagram.txt')
+        fetch('../diagramSample.txt')
             .then(res => res.text())
             .then(data => setInput(data.split('\n')));
     }, []);
+
+    const fetchData = (file: string) => {
+        if (file !== currentFile) {
+            setCurrentFile(file);
+            fetch(file)
+                .then(res => res.text())
+                .then(data => setInput(data.split('\n')));
+        }
+    };
+
+    // useEffect(() => {
+    //     fetch('../diagram.txt')
+    //         .then(res => res.text())
+    //         .then(data => setInput(data.split('\n')));
+    // }, []);
 
     useEffect(() => {
         if (input) {
@@ -143,6 +157,30 @@ function App() {
     return (
         <main style={mainStyles}>
             <h1 style={{ marginBottom: '4rem' }}>Day 10</h1>
+            <div style={{ display: 'flex', gap: '0.8rem' }}>
+                <button
+                    style={{
+                        ...buttonStyle,
+                        ...(currentFile === '../diagramSample.txt'
+                            ? selectedButton
+                            : {}),
+                    }}
+                    onClick={() => fetchData('../diagramSample.txt')}
+                >
+                    Data 1
+                </button>
+                <button
+                    style={{
+                        ...buttonStyle,
+                        ...(currentFile === '../diagram.txt'
+                            ? selectedButton
+                            : {}),
+                    }}
+                    onClick={() => fetchData('../diagram.txt')}
+                >
+                    Data 2
+                </button>
+            </div>
             <p>{`Steps: ${stepsRef.current}`}</p>
             <p style={{ marginBottom: '4rem' }}>{`p1: ${
                 stepsRef.current / 2
@@ -196,7 +234,8 @@ const Tile = React.memo(({ char, isSelectedTile }: TileProps) => {
             <p
                 style={{
                     ...tileStyle,
-                    ...(isSelectedTile ? hideTile : {}),
+                    ...(isSelectedTile ? selectedTile : {}),
+                    ...(char === 'S' ? animalTile : {}),
                 }}
             >
                 {char}
@@ -245,10 +284,32 @@ const tileStyle: React.CSSProperties = {
     left: '50%',
     transform: 'translate(-50%, -50%)',
     pointerEvents: 'none',
+    color: 'rgba(255, 0, 0, 1)',
 };
 
-const hideTile: React.CSSProperties = {
-    display: 'none',
+const selectedTile: React.CSSProperties = {
+    color: 'rgba(0, 255, 0, 1)',
+};
+
+const animalTile: React.CSSProperties = {
+    color: 'rgba(255, 255, 255, 1)',
+    fontSize: '1.2rem',
+};
+const buttonStyle: React.CSSProperties = {
+    border: 'none',
+    backgroundColor: '#ccc',
+    color: '#333',
+    fontWeight: '700',
+    padding: '0.4rem',
+    borderRadius: '5px',
+    marginBottom: '1.2rem',
+    cursor: 'pointer',
+};
+
+const selectedButton: React.CSSProperties = {
+    pointerEvents: 'none',
+    backgroundColor: '#777',
+    color: '#111',
 };
 
 export default App;
