@@ -124,9 +124,9 @@
                         title="Java"
                     />
                 </li>
-                                <li>
+                <li>
                     <a
-                        href="#"
+                        href="https://github.com/AndrewKohn/advent-of-code-2023/tree/master/10"
                         >10</a
                     >&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;React&nbsp;&nbsp;
                     <img
