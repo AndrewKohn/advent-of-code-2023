@@ -1,5 +1,4 @@
-import React, { useRef } from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 enum TileSpace {
     NorthSouth = '|',
@@ -55,23 +54,33 @@ const getPath = (input: string[], start: Position) => {
     return { dir: Direction.EAST, y, x: x + 1 };
 };
 
+const setRays = (len: number) => {
+    const rayLoop: boolean[][] = [];
+    for (let y = 0; y < len; y++) rayLoop[y] = [];
+    return rayLoop;
+};
+
 function App() {
     const [currentFile, setCurrentFile] = useState<string>(
-        '../diagramSample.txt'
+        '../diagramSample1.txt'
     );
     const [input, setInput] = useState<string[]>([]);
     const [paths, setPaths] = useState<Position[]>([]);
+    const [possibleNests, setPossibleNests] = useState<Position[]>([]);
     const stepsRef = useRef<number>(0);
+    const nestsRef = useRef<number>(0);
 
     // init
     useEffect(() => {
-        fetch('../diagramSample.txt')
+        fetch('../diagramSample1.txt')
             .then(res => res.text())
             .then(data => setInput(data.split('\n')));
     }, []);
 
     const fetchData = (file: string) => {
         if (file !== currentFile) {
+            setPaths([]);
+            setPossibleNests([]);
             setCurrentFile(file);
             fetch(file)
                 .then(res => res.text())
@@ -79,19 +88,16 @@ function App() {
         }
     };
 
-    // useEffect(() => {
-    //     fetch('../diagram.txt')
-    //         .then(res => res.text())
-    //         .then(data => setInput(data.split('\n')));
-    // }, []);
-
     useEffect(() => {
         if (input) {
             const start = getStart(input);
             if (start) {
+                const rays: boolean[][] = setRays(input.length);
                 let { dir, y, x } = getPath(input, start);
                 const path = [start, { x, y }];
                 let steps = 1; // init w/ one step since getPath was called
+                rays[start.y][start.x] = true;
+                rays[y][x] = true;
 
                 while (x !== start.x || y !== start.y) {
                     let candidateX = 0;
@@ -145,11 +151,54 @@ function App() {
 
                     x += candidateX;
                     y += candidateY;
+                    rays[y] = rays[y] || [];
+                    rays[y][x] = true;
                     steps++;
                     stepsRef.current = steps;
                     path.push({ x, y });
                 }
-                if (path.length > 0) setPaths(path);
+                if (path.length > 0) {
+                    setPaths(path);
+
+                    const nests: Position[] = [];
+                    let count = 0;
+                    for (let y = 0; y < input.length; y++) {
+                        let intersects = 0;
+                        const line = input[y];
+                        let corner: boolean | string = false;
+
+                        for (let x = 0; x < line.length; x++) {
+                            if (rays[y][x]) {
+                                const current = input[y][x];
+                                if (current === TileSpace.NorthSouth) {
+                                    intersects++;
+                                } else if (current !== TileSpace.EastWest) {
+                                    if (corner) {
+                                        if (
+                                            corner === TileSpace.NorthEast &&
+                                            current === TileSpace.SouthWest
+                                        ) {
+                                            intersects++;
+                                        } else if (
+                                            corner === TileSpace.SouthEast &&
+                                            current === TileSpace.NorthWest
+                                        ) {
+                                            intersects++;
+                                        }
+                                        corner = false;
+                                    } else {
+                                        corner = current;
+                                    }
+                                }
+                            } else if (intersects % 2 === 1) {
+                                nests.push({ x, y });
+                                count++;
+                            }
+                        }
+                    }
+                    setPossibleNests(nests);
+                    nestsRef.current = count;
+                }
             }
         }
     }, [input]);
@@ -161,13 +210,24 @@ function App() {
                 <button
                     style={{
                         ...buttonStyle,
-                        ...(currentFile === '../diagramSample.txt'
+                        ...(currentFile === '../diagramSample1.txt'
                             ? selectedButton
                             : {}),
                     }}
-                    onClick={() => fetchData('../diagramSample.txt')}
+                    onClick={() => fetchData('../diagramSample1.txt')}
                 >
                     Data 1
+                </button>
+                <button
+                    style={{
+                        ...buttonStyle,
+                        ...(currentFile === '../diagramSample2.txt'
+                            ? selectedButton
+                            : {}),
+                    }}
+                    onClick={() => fetchData('../diagramSample2.txt')}
+                >
+                    Data 2
                 </button>
                 <button
                     style={{
@@ -178,14 +238,15 @@ function App() {
                     }}
                     onClick={() => fetchData('../diagram.txt')}
                 >
-                    Data 2
+                    Data 3
                 </button>
             </div>
             <p>{`Steps: ${stepsRef.current}`}</p>
-            <p style={{ marginBottom: '4rem' }}>{`p1: ${
-                stepsRef.current / 2
-            }`}</p>
-            <Tiles input={input} paths={paths} />
+            <p>{`Part one: ${stepsRef.current / 2} steps`}</p>
+            <p
+                style={{ marginBottom: '4rem' }}
+            >{`Part two: ${nestsRef.current} potential nests`}</p>
+            <Tiles input={input} paths={paths} possibleNests={possibleNests} />
         </main>
     );
 }
@@ -195,17 +256,27 @@ function App() {
 interface TilesProps {
     input: string[];
     paths: Position[];
+    possibleNests: Position[];
 }
 
-const Tiles = React.memo(({ input, paths }: TilesProps) => {
+const Tiles = React.memo(({ input, paths, possibleNests }: TilesProps) => {
     const displayTiles = (lineValues: string[], y: number) => {
-        return lineValues.map((tile: string, key: number) => {
+        return lineValues.map((tile: string, x: number) => {
             const isSelectedTile: boolean = paths.some(
-                (pos: Position) => pos.x === key && pos.y === y
+                (pos: Position) => pos.x === x && pos.y === y
+            );
+
+            const isNestTile: boolean = possibleNests.some(
+                (pos: Position) => pos.x === x && pos.y === y
             );
 
             return (
-                <Tile char={tile} isSelectedTile={isSelectedTile} key={key} />
+                <Tile
+                    char={tile}
+                    isSelectedTile={isSelectedTile}
+                    isNestTile={isNestTile}
+                    key={x}
+                />
             );
         });
     };
@@ -224,22 +295,66 @@ const Tiles = React.memo(({ input, paths }: TilesProps) => {
 interface TileProps {
     char: string;
     isSelectedTile: boolean;
+    isNestTile: boolean;
 }
 
-const Tile = React.memo(({ char, isSelectedTile }: TileProps) => {
+const Tile = React.memo(({ char, isSelectedTile, isNestTile }: TileProps) => {
+    const displayTile = (char: string) => {
+        switch (char) {
+            case TileSpace.NorthSouth:
+                return '│';
+            case TileSpace.EastWest:
+                return '─';
+            case TileSpace.NorthEast:
+                return '└';
+            case TileSpace.NorthWest:
+                return '┘';
+            case TileSpace.SouthWest:
+                return '┐';
+            case TileSpace.SouthEast:
+                return '┌';
+            case TileSpace.Ground:
+                return ' ';
+            default:
+                return char;
+        }
+    };
+
+    const tile = displayTile(char);
+
     return (
         <div
-            style={{ ...blockStyle, ...(isSelectedTile ? selectedBlock : {}) }}
+            style={{
+                ...blockStyle,
+                ...(isSelectedTile ? selectedBlock : {}),
+                // ...(isNestTile
+                //     ? {
+                //           backgroundColor: 'rgba(255, 255, 0, 0.5)',
+                //       }
+                //     : {}),
+            }}
         >
-            <p
+            <div
                 style={{
-                    ...tileStyle,
-                    ...(isSelectedTile ? selectedTile : {}),
-                    ...(char === 'S' ? animalTile : {}),
+                    ...tileContainer,
+                    ...(char === 'S' ? { backgroundColor: '#f3f3f385' } : {}),
                 }}
             >
-                {char}
-            </p>
+                <p
+                    style={{
+                        ...tileStyle,
+                        ...(isSelectedTile ? selectedTile : {}),
+                        ...(char === 'S' ? animalTile : {}),
+                        // ...(isNestTile
+                        //     ? {
+                        //           color: 'rgba(255, 255, 0, 1)',
+                        //       }
+                        //     : {}),
+                    }}
+                >
+                    {tile}
+                </p>
+            </div>
         </div>
     );
 });
@@ -267,23 +382,28 @@ const blockStyle: React.CSSProperties = {
     width: '1.2rem',
     height: '1.2rem',
     boxSizing: 'border-box',
-    border: '1px solid rgba(255, 255, 0, 0.5)',
     backgroundColor: 'rgba(255, 0, 0, 0.5)',
-    position: 'relative',
 };
 
 const selectedBlock: React.CSSProperties = {
     backgroundColor: 'rgba(0, 255, 0, 0.5)',
 };
 
+const tileContainer: React.CSSProperties = {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    overflow: 'hidden',
+    pointerEvents: 'none',
+};
+
 const tileStyle: React.CSSProperties = {
-    fontSize: '0.8rem',
-    fontWeight: '700',
+    fontSize: '2rem',
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    pointerEvents: 'none',
+    fontWeight: '700',
     color: 'rgba(255, 0, 0, 1)',
 };
 
@@ -292,9 +412,10 @@ const selectedTile: React.CSSProperties = {
 };
 
 const animalTile: React.CSSProperties = {
-    color: 'rgba(255, 255, 255, 1)',
+    color: '#0b1215',
     fontSize: '1.2rem',
 };
+
 const buttonStyle: React.CSSProperties = {
     border: 'none',
     backgroundColor: '#ccc',
@@ -308,7 +429,7 @@ const buttonStyle: React.CSSProperties = {
 
 const selectedButton: React.CSSProperties = {
     pointerEvents: 'none',
-    backgroundColor: '#777',
+    backgroundColor: '#77777775',
     color: '#111',
 };
 
