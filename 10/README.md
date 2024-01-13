@@ -7,6 +7,6 @@ $ npm i
 $ npm run dev
 ```
 
-![data1](./src/assets/data1.png)
 ![data2](./src/assets/data2.png)
+![data1](./src/assets/data1.png)
 ![data3](./src/assets/data3.png)
